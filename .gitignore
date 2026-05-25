@@ -71,3 +71,7 @@ Testing/
 *.user
 *.user.*
 build-*
+
+*.user
+*.user.*
+build-*
