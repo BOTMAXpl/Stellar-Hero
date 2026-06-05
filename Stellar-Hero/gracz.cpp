@@ -3,7 +3,7 @@
 #include <iostream>
 
 Gracz::Gracz() {
-    speed = 123.0f;
+    speed = 1203.0f;
 
     kierunek = sf::Vector2f(0.0f, 1.0f);
 

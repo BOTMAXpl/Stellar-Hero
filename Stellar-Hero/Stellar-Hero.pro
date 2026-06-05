@@ -6,7 +6,8 @@ CONFIG -= qt
 SOURCES += \
         gracz.cpp \
         main.cpp \
-        obiekt.cpp
+        obiekt.cpp \
+        pocisk.cpp
 
 INCLUDEPATH += "C:/SFML-2.5.1/include"
 LIBS += -L"C:/SFML-2.5.1/lib"
@@ -18,4 +19,5 @@ CONFIG(debug, debug|release){
 
 HEADERS += \
     gracz.h \
-    obiekt.h
+    obiekt.h \
+    pocisk.h
