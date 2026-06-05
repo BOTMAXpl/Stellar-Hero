@@ -1,13 +1,24 @@
 #include "gracz.h"
+#include <cmath>
+#include <iostream>
 
 Gracz::Gracz() {
-    speed = 100.0f;
+    speed = 123.0f;
 
-    shape.setSize(sf::Vector2f(50.0f, 50.0f));
-    shape.setFillColor(sf::Color::Green);
+    kierunek = sf::Vector2f(0.0f, 1.0f);
 
     position = sf::Vector2f(640.0f, 360.0f);
-    shape.setPosition(position);
+    if (!texture.loadFromFile("Frieren1.png")) {
+        std::cerr << "Blad: Nie mozna zaladowac tekstury gracza!" << std::endl;
+    }
+
+    texture.setSmooth(false);
+
+    sprite.setTexture(texture);
+
+    sprite.setScale(1.0f, 1.0f);
+
+    sprite.setPosition(position);
 }
 
 void Gracz::update(float deltaTime) {
@@ -18,11 +29,16 @@ void Gracz::update(float deltaTime) {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) movement.x -= 1.0f;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) movement.x += 1.0f;
 
+    float length = std::sqrt(movement.x * movement.x + movement.y * movement.y);
+    if (length != 0.0f) {
+        movement /= length;
+        kierunek = movement;
+    }
     position += movement * speed * deltaTime;
 
-    shape.setPosition(position);
+    sprite.setPosition(position);
 }
 
 void Gracz::draw(sf::RenderWindow& window) {
-    window.draw(shape);
+    window.draw(sprite);
 }
