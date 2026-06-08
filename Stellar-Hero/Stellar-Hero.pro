@@ -9,13 +9,11 @@ SOURCES += \
         obiekt.cpp \
         pocisk.cpp
 
-INCLUDEPATH += "C:/SFML-2.5.1/include"
-LIBS += -L"C:/SFML-2.5.1/lib"
-CONFIG(debug, debug|release){
-    LIBS += -lsfml-audio-d -lsfml-graphics-d -lsfml-network-d -lsfml-system-d -lsfml-window-d
-} else {
-    LIBS += -lsfml-audio -lsfml-graphics -lsfml-network -lsfml-system -lsfml-window
-}
+INCLUDEPATH += "C:/SFML-2.5.1/SFML-2.5.1/include"
+LIBS += -L"C:/SFML-2.5.1/SFML-2.5.1/lib"
+
+# Linkowanie modułów
+LIBS += -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio -lsfml-network
 
 HEADERS += \
     gracz.h \

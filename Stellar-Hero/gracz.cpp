@@ -3,7 +3,7 @@
 #include <iostream>
 
 Gracz::Gracz() {
-    speed = 1203.0f;
+    speed = 123.0f;
 
     kierunek = sf::Vector2f(0.0f, 1.0f);
 
@@ -16,7 +16,7 @@ Gracz::Gracz() {
 
     sprite.setTexture(texture);
 
-    sprite.setScale(1.0f, 1.0f);
+    sprite.setScale(3.0f, 3.0f);
 
     sprite.setPosition(position);
 }
