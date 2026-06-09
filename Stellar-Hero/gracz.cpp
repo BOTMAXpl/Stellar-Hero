@@ -16,7 +16,7 @@ Gracz::Gracz() {
 
     sprite.setTexture(texture);
 
-    sprite.setScale(3.0f, 3.0f);
+    sprite.setScale(1.0f, 1.0f);
 
     sprite.setPosition(position);
 }

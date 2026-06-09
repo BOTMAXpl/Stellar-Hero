@@ -9,8 +9,8 @@ SOURCES += \
         obiekt.cpp \
         pocisk.cpp
 
-INCLUDEPATH += "C:/SFML-2.5.1/SFML-2.5.1/include"
-LIBS += -L"C:/SFML-2.5.1/SFML-2.5.1/lib"
+INCLUDEPATH += "C:/SFML-2.5.1/include"
+LIBS += -L"C:/SFML-2.5.1/lib"
 
 # Linkowanie modułów
 LIBS += -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio -lsfml-network
