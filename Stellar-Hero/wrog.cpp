@@ -40,10 +40,10 @@ void wrog::licz(float dt) {
     pozycja.x += kierunek_ruchu.x * predkosc * dt;
     pozycja.y += kierunek_ruchu.y * predkosc * dt;
 
-    if (pozycja.x < 60) { pozycja.x = 60; kierunek_ruchu.x *= -1; }
-    if (pozycja.x > 1860) { pozycja.x = 1860; kierunek_ruchu.x *= -1; }
-    if (pozycja.y < 60) { pozycja.y = 60; kierunek_ruchu.y *= -1; }
-    if (pozycja.y > 1020) { pozycja.y = 1020; kierunek_ruchu.y *= -1; }
+    if (pozycja.x < 100) { pozycja.x = 100; kierunek_ruchu.x *= -1; }
+    if (pozycja.x > 1800) { pozycja.x = 1800; kierunek_ruchu.x *= -1; }
+    if (pozycja.y < 100) { pozycja.y = 100; kierunek_ruchu.y *= -1; }
+    if (pozycja.y > 1000) { pozycja.y = 1000; kierunek_ruchu.y *= -1; }
 
     sprajt.setPosition(pozycja);
 }

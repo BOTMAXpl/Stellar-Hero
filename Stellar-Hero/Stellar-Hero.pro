@@ -4,11 +4,13 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 SOURCES += \
+        atak_obszarowy.cpp \
         dzialko.cpp \
         gracz.cpp \
         laser_wroga.cpp \
         main.cpp \
         obiekt.cpp \
+        ostrzezenie.cpp \
         pocisk.cpp \
         pocisk_wroga.cpp \
         portal.cpp \
@@ -20,10 +22,12 @@ LIBS += -L"C:/SFML-2.5.1/lib"
 LIBS += -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio -lsfml-network
 
 HEADERS += \
+    atak_obszarowy.h \
     dzialko.h \
     gracz.h \
     laser_wroga.h \
     obiekt.h \
+    ostrzezenie.h \
     pocisk.h \
     pocisk_wroga.h \
     portal.h \

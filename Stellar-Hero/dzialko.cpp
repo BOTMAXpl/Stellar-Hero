@@ -11,11 +11,11 @@ dzialko::dzialko(float start_x, float start_y) {
 
     sprajt.setTexture(tekstura);
     sprajt.setPosition(pozycja);
-    sprajt.setScale(3.0f, 3.0f);
+    sprajt.setScale(1.0f, 1.0f);
 
     sprajt.setColor(sf::Color(255, 100, 255));
 
-    czas_do_strzalu = 3.0f;
+    czas_do_strzalu = 3.0f+ (rand() % 2);
 }
 
 void dzialko::licz(float dt) {

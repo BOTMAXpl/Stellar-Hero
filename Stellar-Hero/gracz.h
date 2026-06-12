@@ -11,8 +11,10 @@ private:
 
     int zycia;
     float niesmiertelnosc;
+    int numer_gracza;
+    float czas_odnowienia_obszarowki;
 public:
-    gracz();
+    gracz(int numer = 1);
     void licz(float dt) override;
     void rysuj(sf::RenderWindow& okno) override;
 
@@ -22,5 +24,7 @@ public:
     void dostan_obrazenia();
     int ile_zyc() { return zycia; }
     void zresetuj();
+    bool gotowy_obszarowy() { return czas_odnowienia_obszarowki <= 0; }
+    void uzyj_obszarowego() { czas_odnowienia_obszarowki = 5.0f; }
 };
 #endif

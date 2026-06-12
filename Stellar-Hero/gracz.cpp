@@ -2,14 +2,28 @@
 #include <iostream>
 #include <cmath>
 
-gracz::gracz() {
+gracz::gracz(int numer) {
+    numer_gracza = numer;
+    if (numer_gracza == 1) {
+        pozycja = sf::Vector2f(600, 360);
+        predkosc = 300;
+    }
+    else {
+        pozycja = sf::Vector2f(680, 360);
+        predkosc = 600;
+    }
     zycia = 3;
     niesmiertelnosc = 0;
-    predkosc = 600;
+    czas_odnowienia_obszarowki = 0;
+
     pozycja = sf::Vector2f(640, 360);
     kierunek_patrzenia = sf::Vector2f(0, 1);
 
-    tekstura.loadFromFile("Frieren1.png");
+    if (numer_gracza == 1) {
+        tekstura.loadFromFile("Frieren1.png");
+    } else {
+        tekstura.loadFromFile("postac2.png");
+    }
     tekstura.setSmooth(false);
 
     sprajt.setTexture(tekstura);
@@ -18,6 +32,9 @@ gracz::gracz() {
 }
 
 void gracz::licz(float dt) {
+    if (czas_odnowienia_obszarowki > 0) {
+        czas_odnowienia_obszarowki -= dt;
+    }
     if (niesmiertelnosc > 0) {
         niesmiertelnosc -= dt;
         if ((int)(niesmiertelnosc * 10) % 2 == 0) {
@@ -29,11 +46,17 @@ void gracz::licz(float dt) {
         sprajt.setColor(sf::Color(255, 255, 255, 255));
     }
     sf::Vector2f ruch(0, 0);
-
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) ruch.y -= 1;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) ruch.y += 1;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) ruch.x -= 1;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) ruch.x += 1;
+    if (numer_gracza == 1) {
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) ruch.y -= 1;
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) ruch.y += 1;
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) ruch.x -= 1;
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) ruch.x += 1;
+    } else if (numer_gracza == 2) {
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) ruch.y -= 1;
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) ruch.y += 1;
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) ruch.x -= 1;
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) ruch.x += 1;
+    }
 
     float dlugosc = std::sqrt(ruch.x * ruch.x + ruch.y * ruch.y);
     if (dlugosc != 0) {
