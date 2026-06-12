@@ -1,44 +1,76 @@
 #include "gracz.h"
-#include <cmath>
 #include <iostream>
+#include <cmath>
 
-Gracz::Gracz() {
-    speed = 123.0f;
+gracz::gracz() {
+    zycia = 3;
+    niesmiertelnosc = 0;
+    predkosc = 600;
+    pozycja = sf::Vector2f(640, 360);
+    kierunek_patrzenia = sf::Vector2f(0, 1);
 
-    kierunek = sf::Vector2f(0.0f, 1.0f);
+    tekstura.loadFromFile("Frieren1.png");
+    tekstura.setSmooth(false);
 
-    position = sf::Vector2f(640.0f, 360.0f);
-    if (!texture.loadFromFile("Frieren1.png")) {
-        std::cerr << "Blad: Nie mozna zaladowac tekstury gracza!" << std::endl;
-    }
-
-    texture.setSmooth(false);
-
-    sprite.setTexture(texture);
-
-    sprite.setScale(1.0f, 1.0f);
-
-    sprite.setPosition(position);
+    sprajt.setTexture(tekstura);
+    sprajt.setScale(1, 1);
+    sprajt.setPosition(pozycja);
 }
 
-void Gracz::update(float deltaTime) {
-    sf::Vector2f movement(0.0f, 0.0f);
-
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) movement.y -= 1.0f;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) movement.y += 1.0f;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) movement.x -= 1.0f;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) movement.x += 1.0f;
-
-    float length = std::sqrt(movement.x * movement.x + movement.y * movement.y);
-    if (length != 0.0f) {
-        movement /= length;
-        kierunek = movement;
+void gracz::licz(float dt) {
+    if (niesmiertelnosc > 0) {
+        niesmiertelnosc -= dt;
+        if ((int)(niesmiertelnosc * 10) % 2 == 0) {
+            sprajt.setColor(sf::Color(255, 255, 255, 100));
+        } else {
+            sprajt.setColor(sf::Color(255, 255, 255, 255));
+        }
+    } else {
+        sprajt.setColor(sf::Color(255, 255, 255, 255));
     }
-    position += movement * speed * deltaTime;
+    sf::Vector2f ruch(0, 0);
 
-    sprite.setPosition(position);
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) ruch.y -= 1;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) ruch.y += 1;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) ruch.x -= 1;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) ruch.x += 1;
+
+    float dlugosc = std::sqrt(ruch.x * ruch.x + ruch.y * ruch.y);
+    if (dlugosc != 0) {
+        ruch.x = ruch.x / dlugosc;
+        ruch.y = ruch.y / dlugosc;
+        kierunek_patrzenia = ruch;
+    }
+
+    pozycja.x += ruch.x * predkosc * dt;
+    pozycja.y += ruch.y * predkosc * dt;
+
+    if (pozycja.x < 50) pozycja.x = 50;
+    if (pozycja.x > 1820) pozycja.x = 1820;
+    if (pozycja.y < 60) pozycja.y = 60;
+    if (pozycja.y > 960) pozycja.y = 960;
+
+    sprajt.setPosition(pozycja);
 }
 
-void Gracz::draw(sf::RenderWindow& window) {
-    window.draw(sprite);
+void gracz::rysuj(sf::RenderWindow& okno) {
+    okno.draw(sprajt);
+}
+
+sf::FloatRect gracz::daj_kolizje() {
+    return sprajt.getGlobalBounds();
+}
+
+void gracz::dostan_obrazenia() {
+    if (niesmiertelnosc <= 0) {
+        zycia--;
+        niesmiertelnosc = 1.5f;
+        std::cout << "Zostalo zyc: " << zycia << std::endl;
+    }
+}
+
+void gracz::zresetuj() {
+    zycia = 3;
+    pozycja = sf::Vector2f(640, 360);
+    niesmiertelnosc = 0;
 }

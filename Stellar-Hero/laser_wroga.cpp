@@ -1,16 +1,17 @@
-#include "pocisk.h"
+#include "laser_wroga.h"
 #include <cmath>
 
-pocisk::pocisk(sf::Vector2f start, sf::Vector2f kierunek) {
+laser_wroga::laser_wroga(sf::Vector2f start, sf::Vector2f kierunek) {
     czas_zycia = 0;
-    maks_czas = 0.2;
+    maks_czas = 7.0f;
 
     t1.loadFromFile("laser1.png");
     t2.loadFromFile("laser2.png");
 
     obrazek.setTexture(t1);
-
     obrazek.setOrigin(t1.getSize().x / 2.0f, t1.getSize().y / 2.0f);
+
+    obrazek.setColor(sf::Color(255, 50, 50));
 
     pozycja = start;
     obrazek.setPosition(pozycja);
@@ -19,30 +20,26 @@ pocisk::pocisk(sf::Vector2f start, sf::Vector2f kierunek) {
     obrazek.setRotation(kat + 180.0f);
 }
 
-void pocisk::licz(float dt) {
+void laser_wroga::licz(float dt) {
     czas_zycia += dt;
-
-    if (czas_zycia > maks_czas / 2) {
+    if (czas_zycia > maks_czas / 2.0f) {
         obrazek.setTexture(t2, true);
-
         obrazek.setOrigin(t2.getSize().x, t2.getSize().y / 2.0f);
+
+        obrazek.setScale(50.0f, 2.0f);
     }
 }
 
-void pocisk::rysuj(sf::RenderWindow& okno) {
-    if (czy_usunac() == false) {
-        okno.draw(obrazek);
-    }
+void laser_wroga::rysuj(sf::RenderWindow& okno) {
+    if (!czy_usunac()) okno.draw(obrazek);
 }
-bool pocisk::czy_usunac() {
-    if (czas_zycia >= maks_czas) {
-        return true;
-    }
-    return false;
-}
-bool pocisk::czy_trafia(sf::Vector2f punkt_wroga) {
-    sf::Vector2f punkt_lokalny = obrazek.getInverseTransform().transformPoint(punkt_wroga);
 
+bool laser_wroga::czy_usunac() {
+    return czas_zycia >= maks_czas;
+}
+
+bool laser_wroga::czy_trafia(sf::Vector2f punkt_gracza) {
+    sf::Vector2f punkt_lokalny = obrazek.getInverseTransform().transformPoint(punkt_gracza);
     sf::FloatRect granice = obrazek.getLocalBounds();
 
     granice.left -= 30;
@@ -51,8 +48,4 @@ bool pocisk::czy_trafia(sf::Vector2f punkt_wroga) {
     granice.height += 60;
 
     return granice.contains(punkt_lokalny);
-}
-
-void pocisk::trafienie() {
-    czas_zycia = maks_czas;
 }

@@ -1,25 +1,26 @@
 #ifndef GRACZ_H
 #define GRACZ_H
-
 #include "obiekt.h"
 
-
-class Gracz : public Obiekt {
+class gracz : public obiekt {
 private:
-    sf::Texture texture;
-    sf::Sprite sprite;
+    sf::Texture tekstura;
+    sf::Sprite sprajt;
+    float predkosc;
+    sf::Vector2f kierunek_patrzenia;
 
-    sf::RectangleShape shape;
-    float speed;
-
-    sf::Vector2f kierunek;
-
+    int zycia;
+    float niesmiertelnosc;
 public:
-    Gracz();
-    void update(float deltaTime) override;
-    void draw(sf::RenderWindow& window) override;
+    gracz();
+    void licz(float dt) override;
+    void rysuj(sf::RenderWindow& okno) override;
 
-    sf::Vector2f getkierunek() const { return kierunek; }
+    sf::Vector2f wez_kierunek() { return kierunek_patrzenia; }
+
+    sf::FloatRect daj_kolizje() override;
+    void dostan_obrazenia();
+    int ile_zyc() { return zycia; }
+    void zresetuj();
 };
-
 #endif

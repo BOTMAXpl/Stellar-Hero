@@ -2,18 +2,21 @@
 #define OBIEKT_H
 #include <SFML/Graphics.hpp>
 
-class Obiekt {
+class obiekt {
 protected:
-    sf::Vector2f position;
+    sf::Vector2f pozycja;
 
 public:
-    Obiekt();
-    virtual ~Obiekt() = default;
-    virtual void update(float deltaTime) = 0;
-    virtual void draw(sf::RenderWindow& window) = 0;
+    obiekt() { pozycja.x = 0; pozycja.y = 0; }
+    virtual ~obiekt() {}
 
-    void setPosition(float x, float y) { position.x = x; position.y = y; }
-    sf::Vector2f getPosition() const { return position; }
+    virtual void licz(float dt) = 0;
+    virtual void rysuj(sf::RenderWindow& okno) = 0;
+
+    virtual bool czy_usunac() {return false;}
+
+    sf::Vector2f daj_pozycje() {return pozycja;}
+
+    virtual sf::FloatRect daj_kolizje() {return sf::FloatRect(0, 0, 0, 0);}
 };
-
 #endif
