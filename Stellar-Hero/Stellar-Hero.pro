@@ -11,6 +11,7 @@ SOURCES += \
         obiekt.cpp \
         pocisk.cpp \
         pocisk_wroga.cpp \
+        portal.cpp \
         wrog.cpp
 
 INCLUDEPATH += "C:/SFML-2.5.1/include"
@@ -25,4 +26,5 @@ HEADERS += \
     obiekt.h \
     pocisk.h \
     pocisk_wroga.h \
+    portal.h \
     wrog.h

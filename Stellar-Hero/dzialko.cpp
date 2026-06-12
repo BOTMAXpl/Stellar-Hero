@@ -6,7 +6,7 @@ dzialko::dzialko(float start_x, float start_y) {
     pozycja.y = start_y;
     zyje = true;
 
-    tekstura.loadFromFile("wrog1.png");
+    tekstura.loadFromFile("wieza2.png");
     tekstura.setSmooth(false);
 
     sprajt.setTexture(tekstura);
