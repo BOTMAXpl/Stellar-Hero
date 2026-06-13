@@ -5,6 +5,7 @@ CONFIG -= qt
 
 SOURCES += \
         atak_obszarowy.cpp \
+        boss.cpp \
         dzialko.cpp \
         gracz.cpp \
         laser_wroga.cpp \
@@ -23,6 +24,7 @@ LIBS += -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio -lsfml-network
 
 HEADERS += \
     atak_obszarowy.h \
+    boss.h \
     dzialko.h \
     gracz.h \
     laser_wroga.h \
@@ -31,4 +33,5 @@ HEADERS += \
     pocisk.h \
     pocisk_wroga.h \
     portal.h \
+    portal_koncowy.h \
     wrog.h

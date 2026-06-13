@@ -13,8 +13,13 @@
 #include "portal.h"
 #include "atak_obszarowy.h"
 #include "ostrzezenie.h"
+#include <fstream>
+#include "boss.h"
+#include <SFML/Audio.hpp>
+#include "portal_koncowy.h"
 using namespace std;
 
+// tu jest wczytywanie przeicwnikow
 void zaladuj_wrogow(int poziom, vector<obiekt*>& lista) {
     if (poziom == 1) {
         lista.push_back(new wrog(1000, 300));
@@ -40,21 +45,39 @@ void zaladuj_wrogow(int poziom, vector<obiekt*>& lista) {
         lista.push_back(new dzialko(100, 900));
         lista.push_back(new dzialko(1800, 900));
     }
+    else if (poziom == 4) {
+        lista.push_back(new boss(960, 200));
+    }
 }
 
 int main() {
+    // tworzenie okna
     sf::RenderWindow okno(sf::VideoMode(1920, 1080), "Stellar-Hero", sf::Style::Fullscreen);
     okno.setFramerateLimit(60);
     srand(time(NULL));
-
+    //muzyka
+    sf::Music muzyka_tla;
+    if (muzyka_tla.openFromFile("SuperHero_original.ogg")) {
+        muzyka_tla.setLoop(true);
+        muzyka_tla.setVolume(30.f);
+        muzyka_tla.play();
+    }
     sf::Font czcionka;
     if (!czcionka.loadFromFile("MAIAN.ttf")) {
     }
 
+    // licznik smierci
+    int suma_smierci = 0;
+    ifstream plik_odczyt("smierci.txt");
+    if (plik_odczyt.is_open()) {
+        plik_odczyt >> suma_smierci;
+        plik_odczyt.close();
+    }
+
     int stan_gry = 0;
     int wybrana_opcja = 0;
-
     int wybrany_tryb = 0;
+
     float czas_gry = 0.0f;
     float czas_do_kolejnego_wroga = 2.0f;
 
@@ -66,6 +89,7 @@ int main() {
     vector<string> napisy_tryb = {"Classic", "Endless"};
     vector<string> napisy_gracze = {"1 Gracz", "2 Graczy"};
 
+    // ladowanie plikow
     sf::Texture tekstura_mapy;
     tekstura_mapy.loadFromFile("mapa1.png");
     sf::Sprite tlo_poziomu;
@@ -82,36 +106,33 @@ int main() {
     sf::Sprite sprite_serce;
     sprite_serce.setScale(4.0f, 4.0f);
 
+    // lista obiektóW
     vector<obiekt*> lista_obiektow;
     gracz* glowny_gracz = new gracz(1);
     gracz* gracz2 = nullptr;
     lista_obiektow.push_back(glowny_gracz);
 
-    lista_obiektow.push_back(new wrog(1000, 300));
-    lista_obiektow.push_back(new wrog(1400, 500));
-    lista_obiektow.push_back(new wrog(1100, 800));
-    lista_obiektow.push_back(new dzialko(200, 200));
-    lista_obiektow.push_back(new dzialko(1600, 800));
 
     sf::Clock zegar;
     bool wcisnieta_spacja = false;
     bool wcisniety_enter = false;
 
+    // głowna petla
     while (okno.isOpen()) {
         float dt = zegar.restart().asSeconds();
         sf::Event zdarzenie;
 
+        // zamkniecie okna
         while (okno.pollEvent(zdarzenie)) {
             if (zdarzenie.type == sf::Event::Closed)
                 okno.close();
 
             if (zdarzenie.type == sf::Event::KeyPressed && zdarzenie.key.code == sf::Keyboard::Escape) {
-                if (stan_gry == 3) stan_gry = 0;
+                if (stan_gry == 3 || stan_gry == 5 || stan_gry == 6) stan_gry = 0;
                 else okno.close();
             }
-
+            // menu
             if (stan_gry != 3 && zdarzenie.type == sf::Event::KeyPressed) {
-
                 if (zdarzenie.key.code == sf::Keyboard::Up) {
                     wybrana_opcja--;
                     if (wybrana_opcja < 0) wybrana_opcja = 0;
@@ -142,6 +163,7 @@ int main() {
                         czas_gry = 0.0f;
                         czas_do_kolejnego_wroga = 2.0f;
 
+                        // usuwanie pamieci po menu
                         for (int j = 0; j < lista_obiektow.size(); j++) delete lista_obiektow[j];
                         lista_obiektow.clear();
 
@@ -167,18 +189,20 @@ int main() {
                     else if (stan_gry == 4) {
                         stan_gry = 0;
                     }
+                    else if (stan_gry == 5 || stan_gry == 6) {
+                        stan_gry = 0;
+                    }
                 }
             }
         }
 
         if (stan_gry == 3) {
-
+            // endless
             if (wybrany_tryb == 1) {
                 czas_gry += dt;
                 czas_do_kolejnego_wroga -= dt;
 
                 if (czas_do_kolejnego_wroga <= 0) {
-
                     int ile_wrogow = 1 + (int)(std::pow(1.5, czas_gry / 30.0f) - 1);
 
                     for (int k = 0; k < ile_wrogow; k++) {
@@ -193,6 +217,7 @@ int main() {
                 }
             }
 
+            // strzelanie gracza 1
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
                 if (wcisnieta_spacja == false) {
                     sf::Vector2f start = glowny_gracz->daj_pozycje();
@@ -208,7 +233,6 @@ int main() {
             } else {
                 wcisnieta_spacja = false;
             }
-
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::E)) {
                 if (glowny_gracz != nullptr && glowny_gracz->gotowy_obszarowy()) {
                     sf::Vector2f srodek = glowny_gracz->daj_pozycje();
@@ -219,6 +243,7 @@ int main() {
                 }
             }
 
+            // strzelanie gracza 2
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
                 if (wcisniety_enter == false && gracz2 != nullptr) {
                     sf::Vector2f start = gracz2->daj_pozycje();
@@ -237,6 +262,7 @@ int main() {
 
             int zywych_wrogow = 0;
 
+            // ruch i wszystko zwiazane z czasem
             for (int i = 0; i < lista_obiektow.size(); i++) {
                 lista_obiektow[i]->licz(dt);
 
@@ -263,6 +289,44 @@ int main() {
                     }
                 }
 
+                boss* b = dynamic_cast<boss*>(lista_obiektow[i]);
+                if (b != nullptr) {
+                    zywych_wrogow++;
+                    if (b->gotowy_do_strzalu()) {
+                        sf::Vector2f srodek_bossa = b->daj_srodek();
+                        int faza = b->daj_faze();
+
+                        if (faza == 0) {
+                            for (int kat = 0; kat < 360; kat += 30) {
+                                float rad = kat * 3.14159f / 180.0f;
+                                sf::Vector2f kierunek(std::cos(rad), std::sin(rad));
+                                lista_obiektow.push_back(new pocisk_wroga(srodek_bossa, kierunek));
+                            }
+                        } else {
+                            sf::Vector2f cel = glowny_gracz->daj_pozycje();
+                            if (gracz2 != nullptr) {
+                                sf::Vector2f pos2 = gracz2->daj_pozycje();
+                                float dystans1 = (cel.x - srodek_bossa.x) * (cel.x - srodek_bossa.x) + (cel.y - srodek_bossa.y) * (cel.y - srodek_bossa.y);
+                                float dystans2 = (pos2.x - srodek_bossa.x) * (pos2.x - srodek_bossa.x) + (pos2.y - srodek_bossa.y) * (pos2.y - srodek_bossa.y);
+                                if (dystans2 < dystans1) cel = pos2;
+                            }
+                            cel.x += 20;
+                            cel.y += 20;
+
+                            sf::Vector2f kierunek_strzalu = cel - srodek_bossa;
+                            float dlugosc = std::sqrt(kierunek_strzalu.x * kierunek_strzalu.x + kierunek_strzalu.y * kierunek_strzalu.y);
+
+                            if (dlugosc != 0) {
+                                kierunek_strzalu.x /= dlugosc;
+                                kierunek_strzalu.y /= dlugosc;
+                                lista_obiektow.push_back(new laser_wroga(srodek_bossa, kierunek_strzalu));
+                            }
+                        }
+                        b->zresetuj_strzal();
+                    }
+                }
+
+                // szkanie celu dla przeciwników
                 if (czy_strzela) {
                     sf::Vector2f cel = glowny_gracz->daj_pozycje();
 
@@ -289,11 +353,17 @@ int main() {
                 }
             }
 
+            // portal
             if(wybrany_tryb == 0 && zywych_wrogow == 0 && portal_otwarty == false){
-                lista_obiektow.push_back(new portal(960, 540));
+                if (aktualny_poziom == 4) {
+                    lista_obiektow.push_back(new portal_koncowy(960, 540));
+                } else {
+                    lista_obiektow.push_back(new portal(960, 540));
+                }
                 portal_otwarty = true;
             }
 
+            // usuwanie
             for (int i = 0; i < lista_obiektow.size(); i++) {
                 if (lista_obiektow[i]->czy_usunac() == true) {
 
@@ -312,7 +382,26 @@ int main() {
                 }
             }
 
+            // sprawda kolizje
             for (int i = 0; i < lista_obiektow.size(); i++) {
+                portal_koncowy* pk = dynamic_cast<portal_koncowy*>(lista_obiektow[i]);
+                if (pk != nullptr) {
+                    bool pk_hit = false;
+                    if (glowny_gracz != nullptr && pk->daj_kolizje().intersects(glowny_gracz->daj_kolizje())) pk_hit = true;
+                    if (gracz2 != nullptr && pk->daj_kolizje().intersects(gracz2->daj_kolizje())) pk_hit = true;
+
+                    if (pk_hit) {
+                        stan_gry = 6;
+                        for (int j = 0; j < lista_obiektow.size(); j++) delete lista_obiektow[j];
+                        lista_obiektow.clear();
+
+                        glowny_gracz = new gracz(1);
+                        gracz2 = nullptr;
+                        lista_obiektow.push_back(glowny_gracz);
+
+                        break;
+                    }
+                }
                 portal* prt = dynamic_cast<portal*>(lista_obiektow[i]);
                 if (prt != nullptr) {
                     bool prt_hit = false;
@@ -321,8 +410,9 @@ int main() {
 
                     if (prt_hit) {
                         aktualny_poziom++;
-                        if (aktualny_poziom > 3) aktualny_poziom = 1;
+                        if (aktualny_poziom > 4) aktualny_poziom = 1;
 
+                        // wczytuje poziom bez usuwania graczy
                         for (int j = 0; j < lista_obiektow.size(); j++) {
                             if (dynamic_cast<gracz*>(lista_obiektow[j]) == nullptr) {
                                 delete lista_obiektow[j];
@@ -332,7 +422,7 @@ int main() {
                         }
 
                         portal_otwarty = false;
-                        czas_napisu = 3.0f;
+                        czas_napisu = 2.0f;
                         if (glowny_gracz != nullptr) glowny_gracz->zresetuj();
                         if (gracz2 != nullptr) gracz2->zresetuj();
                         zaladuj_wrogow(aktualny_poziom, lista_obiektow);
@@ -340,6 +430,7 @@ int main() {
                     }
                 }
 
+                // pocisk gracza
                 pocisk* p = dynamic_cast<pocisk*>(lista_obiektow[i]);
                 if (p != nullptr) {
                     for (int j = 0; j < lista_obiektow.size(); j++) {
@@ -350,6 +441,7 @@ int main() {
                         dzialko* dz = dynamic_cast<dzialko*>(lista_obiektow[j]);
                         if (dz != nullptr && p->czy_trafia(dz->daj_srodek())) {
                             dz->zabij();
+                            // usunicie lasera przeciwnika po smrci
                             for (int k = 0; k < lista_obiektow.size(); k++) {
                                 laser_wroga* lw = dynamic_cast<laser_wroga*>(lista_obiektow[k]);
                                 if (lw != nullptr && lw->wez_pozycje_startowa() == dz->daj_srodek()) {
@@ -357,9 +449,14 @@ int main() {
                                 }
                             }
                         }
+                        boss* b = dynamic_cast<boss*>(lista_obiektow[j]);
+                        if (b != nullptr && p->czy_trafia(b->daj_srodek())) {
+                            b->dostan_obrazenia();
+                        }
                     }
                 }
 
+                // drugi atak postaci
                 atak_obszarowy* aoe = dynamic_cast<atak_obszarowy*>(lista_obiektow[i]);
                 if (aoe != nullptr) {
                     for (int j = 0; j < lista_obiektow.size(); j++) {
@@ -377,9 +474,14 @@ int main() {
                                 }
                             }
                         }
+                        boss* b = dynamic_cast<boss*>(lista_obiektow[j]);
+                        if (b != nullptr && aoe->daj_kolizje().contains(b->daj_srodek())) {
+                            b->dostan_obrazenia();
+                        }
                     }
                 }
 
+                // pociski wrogow
                 pocisk_wroga* pw = dynamic_cast<pocisk_wroga*>(lista_obiektow[i]);
                 if (pw != nullptr) {
                     bool dostal = false;
@@ -387,7 +489,6 @@ int main() {
                     if (gracz2 != nullptr && pw->daj_kolizje().intersects(gracz2->daj_kolizje())) { gracz2->dostan_obrazenia(); dostal = true; }
                     if (dostal) pw->zniszcz();
                 }
-
                 laser_wroga* lw = dynamic_cast<laser_wroga*>(lista_obiektow[i]);
                 if (lw != nullptr) {
                     if (glowny_gracz != nullptr) {
@@ -402,11 +503,20 @@ int main() {
                     }
                 }
             }
+
+            // do smierci
             bool martwy_1 = (glowny_gracz != nullptr && glowny_gracz->ile_zyc() <= 0);
             bool martwy_2 = (gracz2 != nullptr && gracz2->ile_zyc() <= 0);
 
             if (martwy_1 || martwy_2) {
-                stan_gry = 0;
+                // zapisywanie
+                suma_smierci++;
+                ofstream plik_zapis("smierci.txt");
+                if (plik_zapis.is_open()) {
+                    plik_zapis << suma_smierci;
+                    plik_zapis.close();
+                }
+                stan_gry = 5;
 
                 for (int j = 0; j < lista_obiektow.size(); j++) delete lista_obiektow[j];
                 lista_obiektow.clear();
@@ -425,8 +535,11 @@ int main() {
 
         okno.clear(sf::Color(30, 30, 30));
 
+        // wyswietlanie wszystkiego
         if (stan_gry == 3) {
             okno.draw(tlo_poziomu);
+
+
             for (int i = 0; i < lista_obiektow.size(); i++) {
                 lista_obiektow[i]->rysuj(okno);
             }
@@ -465,13 +578,41 @@ int main() {
 
         if (czas_napisu > 0) {
             czas_napisu -= dt;
-            string t = "POZIOM " + to_string(aktualny_poziom);
+            string t = (aktualny_poziom == 4) ? "BOSS FIGHT!" : "POZIOM " + to_string(aktualny_poziom);
             sf::Text napis_poziomu(t, czcionka, 150);
             napis_poziomu.setPosition(700, 400);
             napis_poziomu.setFillColor(sf::Color(255, 255, 255, 200));
             okno.draw(napis_poziomu);
         }
+        else if (stan_gry == 5) {
+            sf::Text you_died("YOU DIED", czcionka, 180);
+            sf::FloatRect granice1 = you_died.getLocalBounds();
+            you_died.setPosition(960 - granice1.width / 2.0f, 350);
+            you_died.setFillColor(sf::Color(200, 0, 0));
 
+            sf::Text wroc("Enter zeby wrocic do menu", czcionka, 50);
+            sf::FloatRect granice2 = wroc.getLocalBounds();
+            wroc.setPosition(960 - granice2.width / 2.0f, 650);
+            wroc.setFillColor(sf::Color::White);
+
+            okno.draw(you_died);
+            okno.draw(wroc);
+        }
+        else if (stan_gry == 6) {
+
+            sf::Text you_win("YOU WIN!", czcionka, 180);
+            sf::FloatRect granice1 = you_win.getLocalBounds();
+            you_win.setPosition(960 - granice1.width / 2.0f, 350);
+            you_win.setFillColor(sf::Color(255, 215, 0));
+
+            sf::Text wroc("Wcisnij Enter zeby wrocic do menu", czcionka, 50);
+            sf::FloatRect granice2 = wroc.getLocalBounds();
+            wroc.setPosition(960 - granice2.width / 2.0f, 650);
+            wroc.setFillColor(sf::Color::White);
+
+            okno.draw(you_win);
+            okno.draw(wroc);
+        }
         else {
             vector<string> do_narysowania;
             if (stan_gry == 0) do_narysowania = napisy_glowne;
@@ -479,8 +620,19 @@ int main() {
             else if (stan_gry == 2) do_narysowania = napisy_gracze;
 
             if (stan_gry == 4) {
-                sf::Text info("To jest projekt z cpp.\nWcisnij Enter zeby wrocic.", czcionka, 50);
-                info.setPosition(400, 400);
+                sf::Text info("Dotyczace gry:\n"
+                              "Pierwsza postac ruch: w,a,s,d strzelanie: Spacja atak obszarowy: e\n"
+                              "Druga postac ruch: strzalki strzelanie: Enter\n"
+                              "Jest tryb classic - gdzie sa 3 poziomy + boss, endless - gdzie potworki pojawiaja sie bez konca\n"
+                              "i z czasem pojawia sie ich coraz wiecej\n\n\n"
+                              "Dotyczace projektu:\n"
+                              "Wszystkie grafiki bez wyjatku byly recznie robione przez nas\n"
+                              "Kod tez w zakresie naszych umiejetnosci byl pisany samodzielnie\n"
+                              "Szkoda ze sie za to wczesniej nie zabralismy bo w sumie to fajna zabawa to mogla byc \n"
+                              "gdyby nie stres ze zblizajacym sie terminem oddania projektu\n"
+                              "Maks i Jagoda pozdrawiamy i zyczymy milego dnia :)\n\n "
+                              "Wcisnij Enter zeby wrocic.", czcionka, 40);
+                info.setPosition(200, 100);
                 okno.draw(info);
             }
             else {
@@ -494,11 +646,18 @@ int main() {
                     }
                     okno.draw(tekst);
                 }
+
+                // pokazywanie smierci
+                sf::Text tekst_smierci("Liczba zgonow: " + to_string(suma_smierci), czcionka, 40);
+                tekst_smierci.setPosition(50, 950);
+                tekst_smierci.setFillColor(sf::Color(255, 100, 100));
+                okno.draw(tekst_smierci);
             }
         }
         okno.display();
     }
 
+    // czyszczenie wszystkiego
     for (int i = 0; i < lista_obiektow.size(); i++) {
         delete lista_obiektow[i];
     }
